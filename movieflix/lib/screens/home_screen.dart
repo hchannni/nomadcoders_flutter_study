@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:movieflix/models/movie_model.dart';
 import 'package:movieflix/services/api_services.dart';
+import 'package:movieflix/widgets/heading_text.dart';
+import 'package:movieflix/widgets/movie_poster_popular.dart';
+import 'package:movieflix/widgets/movie_poster_small.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -36,76 +39,51 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Popular Movies',
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
+              HeadingText(
+                text: 'Popular Movies',
               ),
-              FutureBuilder(
-                future: popularMovies,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return SizedBox(
-                      height: 300,
-                      child: makePopularMoviesList(snapshot),
-                    );
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                },
+              homeScreenFutureBuilder(
+                popularMovies,
+                true,
               ),
-              Text(
-                'Now in Cinemas',
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
+              HeadingText(
+                text: 'Now in Cinemas',
               ),
-              FutureBuilder(
-                future: nowPlayingMovies,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return SizedBox(
-                      height: 300,
-                      child: makeNowPlayingMoviesList(snapshot),
-                    );
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                },
+              homeScreenFutureBuilder(
+                nowPlayingMovies,
+                false,
               ),
-              Text(
-                'Coming Soon',
-                style: TextStyle(
-                  fontSize: 24,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
+              HeadingText(
+                text: 'Coming Soon',
               ),
-              FutureBuilder(
-                future: comingSoonMovies,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return SizedBox(
-                      height: 300,
-                      child: makeComingSoonMoviesList(snapshot),
-                    );
-                  }
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
-                },
+              homeScreenFutureBuilder(
+                comingSoonMovies,
+                false,
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  FutureBuilder<List<MovieModel>> homeScreenFutureBuilder(
+      Future<List<MovieModel>> future, bool isPopular) {
+    return FutureBuilder(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return SizedBox(
+            height: 300,
+            child: isPopular
+                ? makePopularMoviesList(snapshot)
+                : makeSmallPosterMoviesList(snapshot),
+          );
+        }
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
   }
 
@@ -117,19 +95,7 @@ class HomeScreen extends StatelessWidget {
       ),
       itemBuilder: (context, index) {
         var movie = snapshot.data![index];
-        return Container(
-          width: 200,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              'https://image.tmdb.org/t/p/w500/${movie.posterPath}',
-              fit: BoxFit.cover,
-            ),
-          ),
-        );
+        return MoviePosterPopular(movie: movie);
       },
       separatorBuilder: (context, index) => SizedBox(width: 20),
       itemCount: snapshot.data!.length,
@@ -137,7 +103,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  ListView makeNowPlayingMoviesList(AsyncSnapshot<List<MovieModel>> snapshot) {
+  ListView makeSmallPosterMoviesList(AsyncSnapshot<List<MovieModel>> snapshot) {
     return ListView.separated(
       padding: EdgeInsets.symmetric(
         vertical: 10,
@@ -145,86 +111,7 @@ class HomeScreen extends StatelessWidget {
       ),
       itemBuilder: (context, index) {
         var movie = snapshot.data![index];
-        return Column(
-          children: [
-            Container(
-              width: 160,
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  'https://image.tmdb.org/t/p/w500/${movie.posterPath}',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              movie.title.length > 20
-                  ? '${movie.title.substring(0, 17)}...' // 글자 수 상한 적용
-                  : movie.title,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        );
-      },
-      separatorBuilder: (context, index) => SizedBox(width: 16),
-      itemCount: snapshot.data!.length,
-      scrollDirection: Axis.horizontal,
-      shrinkWrap: true,
-    );
-  }
-
-  ListView makeComingSoonMoviesList(AsyncSnapshot<List<MovieModel>> snapshot) {
-    return ListView.separated(
-      padding: EdgeInsets.symmetric(
-        vertical: 10,
-        horizontal: 20,
-      ),
-      itemBuilder: (context, index) {
-        var movie = snapshot.data![index];
-        return Column(
-          children: [
-            Container(
-              width: 160,
-              clipBehavior: Clip.hardEdge,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  'https://image.tmdb.org/t/p/w500/${movie.posterPath}',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              movie.title.length > 20
-                  ? '${movie.title.substring(0, 17)}...' // 글자 수 상한 적용
-                  : movie.title,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        );
+        return MoviePosterSmall(movie: movie);
       },
       separatorBuilder: (context, index) => SizedBox(width: 16),
       itemCount: snapshot.data!.length,

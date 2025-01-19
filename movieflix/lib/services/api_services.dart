@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:movieflix/models/movie_detail_model.dart';
 import 'package:movieflix/models/movie_model.dart';
 import 'package:http/http.dart' as http;
 
@@ -55,6 +56,18 @@ class ApiService {
       }
 
       return comingSoonMovies;
+    } else {
+      throw Error();
+    }
+  }
+
+  static Future<MovieDetailModel> getMovieDeatilById(int id) async {
+    final uri = Uri.parse("$baseUrl/movie?id=$id");
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> movie = jsonDecode(response.body);
+      final instance = MovieDetailModel.fromJson(movie);
+      return instance;
     } else {
       throw Error();
     }

@@ -29,7 +29,7 @@ class MovieModel {
         releaseDate = json['release_date'],
         title = json['title'],
         video = json['video'],
-        voteAverage = json['vote_average'],
+        voteAverage = (json['vote_average'] as num).toDouble(),
         voteCount = json['vote_count'];
 }
 

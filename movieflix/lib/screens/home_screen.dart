@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
           "Movieflix 🍿",
           style: TextStyle(
             fontSize: 24,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w800,
           ),
         ),
         elevation: 2,
